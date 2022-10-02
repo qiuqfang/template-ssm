@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!-- 引入多个配置文件设置ignore-unresolvable="true" -->
+    <context:property-placeholder location="classpath*:security.properties" ignore-unresolvable="true"/>
+
+    <!-- 过滤器配置 start  -->
+    <bean id="jwtFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <property name="securityManager" ref="securityManager"/>
+        <property name="filters">
+            <map>
+                <entry key="jwt" value-ref="jwtTokenFilter"/>
+            </map>
+        </property>
+        <property name="filterChainDefinitionMap">
+            <map>
+                <entry key="/**" value="jwt"/>
+            </map>
+        </property>
+    </bean>
+    <!-- 过滤器配置 end -->
+
+    <!-- 安全管理器配置 start -->
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <property name="realms">
+            <list>
+                <ref bean="jwtTokenRealm"/>
+            </list>
+        </property>
+        <!--        <property name="cacheManager" ref="cacheManager"/>-->
+    </bean>
+    <!-- 安全管理器配置 end -->
+
+    <bean id="cacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
+        <property name="cacheManagerConfigFile" value="classpath:ehcache.xml"/>
+    </bean>
+
+    <bean id="jwtTokenFilter" class="com.template.security.component.JwtTokenFilter"/>
+
+</beans>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <beans profile="dev">
+        <!-- 引入多个配置文件设置ignore-unresolvable="true" -->
+        <context:property-placeholder location="classpath*:redis-dev.properties" ignore-unresolvable="true"/>
+    </beans>
+    <beans profile="prod">
+        <!-- 引入多个配置文件设置ignore-unresolvable="true" -->
+        <context:property-placeholder location="classpath*:redis-prod.properties" ignore-unresolvable="true"/>
+    </beans>
+
+    <beans profile="common">
+        <bean id="jedisConnectionFactory"
+              class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
+            <constructor-arg name="standaloneConfig">
+                <bean id="standaloneConfig"
+                      class="org.springframework.data.redis.connection.RedisStandaloneConfiguration">
+                    <property name="hostName" value="${redis.host}"></property>
+                    <property name="port" value="${redis.port}"></property>
+                    <property name="password">
+                        <bean class="org.springframework.data.redis.connection.RedisPassword">
+                            <constructor-arg name="thePassword" value="${redis.password}"></constructor-arg>
+                        </bean>
+                    </property>
+                </bean>
+            </constructor-arg>
+        </bean>
+        <bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate">
+            <property name="connectionFactory" ref="jedisConnectionFactory"></property>
+            <property name="defaultSerializer">
+                <bean class="org.springframework.data.redis.serializer.StringRedisSerializer"></bean>
+            </property>
+        </bean>
+
+    </beans>
+
+</beans>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+    <properties resource="generator.properties"/>
+    <context id="MySqlContext" targetRuntime="MyBatis3" defaultModelType="flat">
+        <property name="beginningDelimiter" value="`"/>
+        <property name="endingDelimiter" value="`"/>
+        <property name="javaFileEncoding" value="UTF-8"/>
+
+        <!-- 为模型生成序列化方法 -->
+        <plugin type="org.mybatis.generator.plugins.SerializablePlugin"/>
+        <!-- 为生成的Java模型创建一个toString方法 -->
+        <plugin type="org.mybatis.generator.plugins.ToStringPlugin"/>
+        <!-- 生成mapper.xml时覆盖原文件 -->
+        <plugin type="org.mybatis.generator.plugins.UnmergeableXmlMappersPlugin"/>
+        <plugin type="org.mybatis.generator.plugins.CachePlugin"/>
+
+        <commentGenerator>
+            <!-- 用于指定MBG是否在生成的代码中包含任何注释 true：否 ： false:是 -->
+            <property name="suppressAllComments" value="true"/>
+            <!-- 用于指定MBG是否在生成的注释中包括生成时间戳 true：否，false：是 -->
+            <property name="suppressDate" value="true"/>
+            <!-- 用于指定MBG是否在生成的注释中包括db表中的表和列注释 true：是，false：否 -->
+            <property name="addRemarkComments" value="false"/>
+        </commentGenerator>
+
+        <jdbcConnection driverClass="${driverClass}"
+                        connectionURL="${connectionURL}"
+                        userId="${userId}"
+                        password="${password}">
+            <!--解决mysql驱动升级到8.0后不生成指定数据库代码的问题-->
+            <property name="nullCatalogMeansCurrent" value="true"/>
+        </jdbcConnection>
+
+        <javaModelGenerator targetPackage="${modelTargetPackage}" targetProject="${modelTargetProject}"/>
+
+        <sqlMapGenerator targetPackage="${sqlMapTargetPackage}"
+                         targetProject="${sqlMapTargetProject}"/>
+
+        <javaClientGenerator type="XMLMAPPER" targetPackage="${javaMapTargetPackage}"
+                             targetProject="${javaMapTargetProject}"/>
+        <!-- 生成全部表tableName设为% -->
+        <table tableName="%">
+            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
+        </table>
+
+    </context>
+</generatorConfiguration>

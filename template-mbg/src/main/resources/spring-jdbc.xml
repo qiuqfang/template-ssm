@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <beans profile="dev">
+        <!-- 引入多个配置文件设置ignore-unresolvable="true" -->
+        <context:property-placeholder location="classpath*:jdbc-dev.properties" ignore-unresolvable="true"/>
+    </beans>
+    <beans profile="prod">
+        <!-- 引入多个配置文件设置ignore-unresolvable="true" -->
+        <context:property-placeholder location="classpath*:jdbc-prod.properties" ignore-unresolvable="true"/>
+    </beans>
+
+    <beans profile="common">
+        <!--
+            连接数据库配置
+            数据库连接池使用：HikariCP
+        -->
+        <bean id="dataSource"
+              class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+            <property name="driverClassName" value="${jdbc.driverClass}"/>
+            <property name="jdbcUrl" value="${jdbc.url}"/>
+            <property name="username" value="${jdbc.username}"/>
+            <property name="password" value="${jdbc.password}"/>
+        </bean>
+        <!-- SQL会话工厂 -->
+        <bean id="sqlSessionFactory"
+              class="org.mybatis.spring.SqlSessionFactoryBean">
+            <property name="dataSource" ref="dataSource"/>
+            <property name="configLocation" value="classpath:mybatis/mybatis-context.xml"/>
+        </bean>
+        <!-- 扫描接口 -->
+        <mybatis-spring:scan base-package="com.template.**.mapper, com.template.**.dao"/>
+        <!-- 事务 -->
+        <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+            <property name="dataSource" ref="dataSource"/>
+        </bean>
+        <!-- 开启事务管理 -->
+        <tx:annotation-driven transaction-manager="transactionManager"/>
+    </beans>
+
+</beans>
